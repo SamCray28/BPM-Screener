@@ -1,0 +1,9 @@
+[project]
+name = "bpm-screener"
+version = "0.1.0"
+description = "BPM Behavioral Intelligence Screener — decision-support architecture (no live data connected)"
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
