@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: bpm
+          POSTGRES_PASSWORD: bpm_test_password
+          POSTGRES_DB: bpm_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U bpm"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Compile check
+        run: python -m compileall app tests
+
+      - name: Run unit tests (dependency-free logic)
+        run: python -m pytest tests/unit -v
+
+      - name: Run load/performance tests (dependency-free)
+        run: python -m pytest tests/performance -v
+
+      - name: Run provider parser tests
+        run: python -m pytest tests/providers -v
+
+      - name: Run API tests
+        env:
+          APP_ENV: test
+          DATABASE_URL: postgresql+asyncpg://bpm:bpm_test_password@localhost:5432/bpm_test
+          BPM_WEBHOOK_SECRET: ci-test-secret
+        run: python -m pytest tests/api -v
