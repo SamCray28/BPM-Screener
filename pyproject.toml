@@ -1,0 +1,10 @@
+[project]
+name = "bpm-platform"
+version = "4.0.0"
+description = "BPM Behavioral Intelligence Platform — Python backend"
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+asyncio_mode = "auto"

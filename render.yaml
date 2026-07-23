@@ -1,0 +1,67 @@
+services:
+  - type: web
+    name: bpm-platform
+    env: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    autoDeploy: true
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_NAME
+        value: BPM Behavioral Intelligence Platform
+      - key: APP_VERSION
+        value: 4.0.0
+      - key: DATABASE_URL
+        fromDatabase:
+          name: bpm-postgres
+          property: connectionString
+      - key: BPM_WEBHOOK_SECRET
+        sync: false
+      - key: LOG_LEVEL
+        value: INFO
+      - key: ALLOWED_SCHEMA_VERSIONS
+        value: "1.1"
+      - key: ALLOWED_FORMULA_VERSIONS
+        value: "bpm-3.0.1"
+      - key: CORS_ORIGINS
+        value: ""
+      - key: MAX_REQUEST_BYTES
+        value: "32768"
+      - key: MARKET_DATA_PROVIDER
+        value: "mock"
+      - key: NEWS_PROVIDER
+        value: "mock"
+      - key: CORPORATE_EVENTS_PROVIDER
+        value: "mock"
+      - key: SENTIMENT_PROVIDER
+        value: "mock"
+      - key: FILINGS_PROVIDER
+        value: "mock"
+      - key: POLYGON_API_KEY
+        sync: false
+      - key: FINNHUB_API_KEY
+        sync: false
+      - key: SEC_EDGAR_USER_AGENT
+        value: "BPM Platform research@example.com"
+      - key: UNIVERSE_MAX_SHARE_PRICE
+        value: "50"
+      - key: UNIVERSE_MIN_AVG_DAILY_VOLUME
+        value: "300000"
+      - key: UNIVERSE_MIN_AVG_DAILY_DOLLAR_VOLUME
+        value: "5000000"
+      - key: UNIVERSE_MIN_RELATIVE_VOLUME
+        value: "1.0"
+      - key: HISTORICAL_MIN_SAMPLE_SIZE
+        value: "20"
+      - key: RANKING_REFRESH_SECONDS
+        value: "60"
+      - key: SCHEDULER_LEADER_ELECTION_ENABLED
+        value: "true"
+      - key: SCHEDULER_LEADER_LOCK_KEY
+        value: "727271"
+
+databases:
+  - name: bpm-postgres
+    plan: starter

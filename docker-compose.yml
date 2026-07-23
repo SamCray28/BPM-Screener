@@ -1,0 +1,40 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: bpm
+      POSTGRES_PASSWORD: bpm_dev_password
+      POSTGRES_DB: bpm
+    ports:
+      - "5432:5432"
+    volumes:
+      - bpm_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bpm"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    environment:
+      APP_ENV: development
+      DATABASE_URL: postgresql+asyncpg://bpm:bpm_dev_password@db:5432/bpm
+      BPM_WEBHOOK_SECRET: ${BPM_WEBHOOK_SECRET:-replace-me}
+      LOG_LEVEL: INFO
+    env_file:
+      - .env
+
+volumes:
+  bpm_postgres_data:
